@@ -1,0 +1,39 @@
+[package]
+name = "fl-core"
+version = "0.1.0"
+edition = "2021"
+authors = ["clndt"]
+
+[lib]
+name = "gmsv_flcore_osname"
+crate-type = ["cdylib"]
+
+[profile.release]
+codegen-units = 1
+opt-level = "s"
+lto = "thin"
+
+[dependencies]
+gmod = { version = "15.0.0", default-features = false }
+hashbrown = "0.12.0"
+paris = { version = "1.5.11", features = ["macros"] }
+tokio = {version = "1.17.0", default-features = false, features=["full"]}
+
+#crypto
+sha3 = "0.10.1"
+md6 = "2.0.3"
+md-5 = "0.10.1"
+hex = "0.4.3"
+
+#mongo
+chrono = "0.4.19"
+uuid = "0.8.2"
+mongodb = {version = "2.1.0", default-features = false, features = ["tokio-runtime", "bson-chrono-0_4", "snappy-compression"]}
+
+# file formats
+toml = "0.5.8"
+yaml-rust = "0.4.5"
+
+# async
+singlyton = "4.1.1"
+crossbeam = "0.8.1"
