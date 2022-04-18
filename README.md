@@ -1,5 +1,5 @@
 # ƒlex core
-Core module of [ƒlex](https://github.com/gmflex/fl) written in rust
+Core module of [ƒlex](https://github.com/gmflex/fl) written in [Rust](https://github.com/rust-lang/rust)
 
 ## Installation
 
@@ -9,8 +9,8 @@ Core module of [ƒlex](https://github.com/gmflex/fl) written in rust
 ## Building from source
 
 1. Install rust compliler with `rustup`
-2. Clone this repo and run `cargo build --target *your target*`(for targets look at the [doc.rust-lang.org](https://doc.rust-lang.org/nightly/rustc/platform-support.html))
-3. Replace .so in name with .dll
+2. Clone this repo and run `cargo build --target *your target*`(for targets look at the [rust docs](https://doc.rust-lang.org/nightly/rustc/platform-support.html))
+3. Rename library in target folder to gmsv_flcore_([see](https://github.com/rust-lang/rust))
 4. Place module in /garrysmod/lua/bin folder.
 
 ## Documentation
