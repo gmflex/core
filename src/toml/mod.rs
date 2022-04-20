@@ -3,7 +3,6 @@ use gmod::lua::{
   LUA_TNONE, LUA_TNIL, LUA_TBOOLEAN, LUA_TLIGHTUSERDATA, LUA_TNUMBER,
   LUA_TSTRING, LUA_TTABLE, LUA_TFUNCTION, LUA_TUSERDATA, LUA_TTHREAD
 };
-use toml;
 use toml::Value;
 
 // Leaves on top value converted to LuaValue
@@ -44,14 +43,14 @@ pub unsafe fn toml_new(lua: State) -> i32 {
     Ok(doc) => {
       value_to_lua(lua, doc);
 
-      return 1
+      1
     },
     Err(err) => { 
       lua.get_global(lua_string!("ErrorNoHaltWithStack"));
-      lua.push_string(&format!("Failed to parse a TOML document: {}", err.to_string()));
+      lua.push_string(&format!("Failed to parse a TOML document: {}", err));
       lua.pcall_ignore(1, 0);
 
-      return 0
+      0
     }
   }
 }

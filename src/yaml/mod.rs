@@ -40,14 +40,14 @@ pub unsafe fn yaml_new(lua: State) -> i32 {
     Ok(doc) => {
       value_to_lua(lua, yaml_rust::Yaml::Array(doc));
 
-      return 1
+      1
     },
     Err(err) => {
       lua.get_global(lua_string!("ErrorNoHaltWithStack"));
-      lua.push_string(&format!("Failed to parse a YAML document: {}", err.to_string()));
+      lua.push_string(&format!("Failed to parse a YAML document: {}", err));
       lua.pcall_ignore(1, 0);
 
-      return 0
+      0
     }
   }
 }

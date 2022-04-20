@@ -7,7 +7,7 @@ use hex;
 pub unsafe fn md6_new(lua: State) -> i32 {
   let size = lua.check_integer(1);
   
-  if size < 1 || size > 512 {
+  if !(1..=512).contains(&size) {
     lua.get_global(lua_string!("ErrorNoHaltWithStack"));
     lua.push_string("Hash output length must be between 1 and 512");
     lua.pcall_ignore(1, 0);

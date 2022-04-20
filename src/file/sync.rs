@@ -235,7 +235,7 @@ pub unsafe extern "C-unwind" fn remove(lua: State) -> i32 {
 pub unsafe extern "C-unwind" fn create(lua: State) -> i32 {
   let path = build_path(lua.check_binary_string(1));
   // TODO: recursive
-  if path.to_str().unwrap().ends_with("/") {
+  if path.to_str().unwrap().ends_with('/') {
     let recursive = lua.check_boolean(2);
     match fs::create_dir(path) {
       Ok(()) => {
