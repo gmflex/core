@@ -4,6 +4,19 @@ pub mod md5;
 pub mod md6;
 pub mod sha3;
 pub mod hex;
+pub mod base;
+
+pub unsafe fn init_base(lua: State, idx: i32) {
+  lua.push_function(base::base64_encode);
+  lua.set_field(idx, lua_string!("encode"));
+
+  lua.push_function(base::base64_fast_encode);
+  lua.set_field(idx, lua_string!("fast"));
+
+  lua.push_function(base::base64_url_encode);
+  lua.set_field(idx, lua_string!("url"));
+  log!("[flex.rs.crypto.base64] initialized ✓");
+}
 
 pub unsafe fn init_hex(lua: State, idx: i32) {
   lua.push_function(hex::hex_encode);
