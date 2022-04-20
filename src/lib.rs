@@ -26,6 +26,7 @@ unsafe fn gmod13_open(lua: State) -> i32 {
 
   // crypto
   lua.new_table(); // crypto = {...} -2
+  crypto::init_base(lua, -2);
   crypto::init_hex(lua, -2);
   crypto::init_md5(lua, -2);
   crypto::init_md6(lua, -2);

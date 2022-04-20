@@ -7,14 +7,27 @@ pub mod hex;
 pub mod base;
 
 pub unsafe fn init_base(lua: State, idx: i32) {
+  lua.new_table(); // base = {...} -1
+  
   lua.push_function(base::base64_encode);
   lua.set_field(idx, lua_string!("encode"));
 
   lua.push_function(base::base64_fast_encode);
-  lua.set_field(idx, lua_string!("fast"));
+  lua.set_field(idx, lua_string!("fast_encode"));
 
   lua.push_function(base::base64_url_encode);
-  lua.set_field(idx, lua_string!("url"));
+  lua.set_field(idx, lua_string!("url_encode"));
+
+  lua.push_function(base::base64_decode);
+  lua.set_field(idx, lua_string!("decode"));
+
+  lua.push_function(base::base64_fast_decode);
+  lua.set_field(idx, lua_string!("fast_decode"));
+
+  lua.push_function(base::base64_url_decode);
+  lua.set_field(idx, lua_string!("url_decode"));
+
+  lua.set_field(idx, lua_string!("base64"));
   log!("[flex.rs.crypto.base64] initialized ✓");
 }
 
