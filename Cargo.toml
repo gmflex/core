@@ -1,6 +1,6 @@
 [package]
 name = "fl-core"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 authors = ["clndt"]
 
@@ -9,15 +9,30 @@ name = "gmsv_flcore_osname"
 crate-type = ["cdylib"]
 
 [profile.release]
+panic = "abort"
 codegen-units = 1
-opt-level = "s"
-lto = "thin"
+lto = true
+opt-level = 3
+
+[profile.dev]
+incremental = true
+strip = false
+lto = false
+opt-level = 0
+
+[profile.dev.package."*"]
+opt-level = 0
+incremental = true
+
+[profile.dev.build-override]
+opt-level = 0
+incremental = true
+
 
 [dependencies]
-gmod = { version = "15.0.0", default-features = false }
-hashbrown = "0.12.0"
-paris = { version = "1.5.11", features = ["macros"] }
-tokio = {version = "1.17.0", default-features = false, features=["full"]}
+gmod = { git = "https://github.com/WilliamVenner/gmod-rs", branch = "master" }
+paris = { version = "1.5", features = ["macros"] }
+tokio = {version = "1.19", default-features = false, features=["full"]}
 
 #crypto
 sha3 = "0.10.1"
@@ -28,13 +43,17 @@ radix64 = "0.6.2"
 
 #mongo
 chrono = "0.4.19"
-uuid = "0.8.2"
-mongodb = {version = "2.1.0", default-features = false, features = ["tokio-runtime", "bson-chrono-0_4", "snappy-compression"]}
+uuid = "1.1.2"
+mongodb = {version = "2", default-features = false, features = ["tokio-sync", "bson-chrono-0_4", "snappy-compression"]}
+serde_json = "1.0.82"
 
 # file formats
-toml = "0.5.8"
+toml = "0.5.9"
 yaml-rust = "0.4.5"
 
 # async
-singlyton = "4.1.1"
-crossbeam = "0.8.1"
+#singlyton = "4.1.1"
+#crossbeam = "0.8.1"
+
+# dependency
+#pubgrub = "0.2.1"
