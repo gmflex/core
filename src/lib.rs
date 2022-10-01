@@ -1,71 +1,80 @@
 #![feature(c_unwind)]
-#![feature(const_fn_trait_bound)]
-#![feature(path_try_exists)]
+#![feature(fs_try_exists)]
 
-#![allow(unused_imports)]
-#![allow(unused_variables)]
-#![allow(dead_code)]
-
-#[macro_use] extern crate paris;
 #[macro_use] extern crate gmod;
-use gmod::lua::State;
-use paris::Logger;
+#[macro_use] extern crate magic_static;
 
-mod crypto;
-mod toml;
-mod yaml;
-mod file;
-//mod bson;
+use gmod::lua::State;
+use fast_log::{
+  Config,
+  plugin::{
+    file_split::RollingType,
+    packer::LogPacker,
+  },
+  consts::LogSize,
+};
+  
+mod utils;
+#[cfg(all(not(feature = "toml"), not(feature = "yaml")))]
+compile_error!("You must enable at least one of the following features: toml, yaml");
+
+#[cfg(all(feature = "mongo_async", feature = "mongo_sync"))]
+compile_error!("You must enable exactly one of the following features: mongo_async, mongo_sync");
+
+//#[cfg(all(feature = "redis_async", feature = "redis_sync"))]
+//compile_error!("You must enable exactly one of the following features: redis_async, redis_sync");
+
+#[cfg(any(feature="crypto-sha3", feature="crypto-md5",
+feature="crypto-md6", feature="crypto-base64"))] mod crypto;
+#[cfg(feature = "toml")] mod toml;
+#[cfg(feature = "yaml")] mod yaml;
+#[cfg(feature = "fs_sync")] mod fs_sync;
+#[cfg(feature = "fs_async")] mod fs_async;
+#[cfg(any(feature = "mongo_async", feature = "mongo_sync"))] mod bson;
+#[cfg(feature = "mongo_sync")] mod mongo_sync;
+#[cfg(feature = "mongo_async")] mod mongo_async;
+#[cfg(feature = "redis_sync")] mod redis_sync;
+#[cfg(feature = "redis_async")] mod redis_async;
+
+unsafe fn load(lua: State) {
+  utils::load(lua);
+  #[cfg(feature = "toml")] toml::load(lua);
+  #[cfg(feature = "yaml")] yaml::load(lua);
+  #[cfg(feature = "fs_sync")] fs_sync::load(lua);
+  #[cfg(feature = "fs_async")] fs_async::load(lua);
+  #[cfg(feature = "mongo_sync")] mongo_sync::load(lua);
+  #[cfg(feature = "mongo_async")] mongo_async::load(lua);
+  //#[cfg(feature = "redis_sync")] redis_sync::load(lua);
+  //#[cfg(feature = "redis_async")] redis_async::load(lua);
+  #[cfg(any(feature="crypto-sha3", feature="crypto-md5",
+  feature="crypto-md6", feature="crypto-base64"))] crypto::load(lua);
+}
 
 #[gmod13_open]
 unsafe fn gmod13_open(lua: State) -> i32 {
-  let log = Logger::new();
+  fast_log::init(Config::new()
+    .console()
+    .file_split("logs/flex/",
+               LogSize::MB(5),
+               RollingType::All,
+               LogPacker {})).unwrap();
 
-  log!("[flex.rs] initializing...");
+  #[cfg(feature = "mongo_async")] mongo_async::worker::init();
+  
   lua.new_table(); // base table = -1
-
-  // crypto
-  lua.new_table(); // crypto = {...} -2
-  crypto::init_base(lua, -2);
-  crypto::init_hex(lua, -2);
-  crypto::init_md5(lua, -2);
-  crypto::init_md6(lua, -2);
-  crypto::init_sha3(lua, -2);
-  lua.set_field(-2, lua_string!("crypto"));
-  // crypto end
-
-  // toml
-  toml::init_toml(lua, -2); // flex.toml(string) -> table
-  // toml end
-
-  // yaml
-  yaml::init_yaml(lua, -2); // flex.yaml(string) -> table
-  // yaml end
-
-  // bson
-  //lua.new_table(); // bson = {...} -2
-  //lua.push_function(bson::bson_new);
-  //lua.set_field(-2, lua_string!("test"));
-  //lua.set_field(-2, lua_string!("bson"));
-  // bson end
-
-  // file.sync
-  lua.new_table(); // file = {...}; -2
-  file::init_sync(lua, -2);
-  lua.set_field(-2, lua_string!("file"));
-
+  
+  load(lua);
+  
   lua.set_global(lua_string!("flex"));
-  log!("[flex.rs] initialized successfully");
-  1
+  
+  info!("flcore loaded");
+  0
 }
 
 #[gmod13_close]
 unsafe fn gmod13_close(lua: State) -> i32 {
-  let mut log = Logger::new();
+  #[cfg(feature = "mongo_async")] mongo_async::worker::shutdown(lua);
   
-  log.log("[flex.rs] deinitializing...");
-
-  log.log("[flex.rs] deinitialized successfully");
-
+  info!("flcore unloaded");
   0
 }
